@@ -106,6 +106,6 @@ res = em.estimate_ml(
     },
 )
 # display results
-res.summary().round(4)
+print(res.summary().round(4))
 
 # %%
