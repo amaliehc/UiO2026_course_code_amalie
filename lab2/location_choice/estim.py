@@ -2,7 +2,7 @@
 
 # Run one of the following to install optimagic if not already installed
 # !pip install optimagic
-# !conda install -c conda-forge estimagic
+# !conda install -c conda-forge optimagic
 
 #%% LOAD MODULES
 import numpy as np
