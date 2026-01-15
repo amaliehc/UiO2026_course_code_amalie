@@ -62,7 +62,7 @@ def ll(theta, model, solver,data, pnames, out=1): # out=1 solve optimization, ou
     ev0 = ev
 
     # Solve the model
-    ev, pk, dev = solver.poly(model,bellman,V0=ev0, beta = model.beta, output=3)   
+    ev, pk, dev = solver.poly(model.bellman,V0=ev0, beta = model.beta, output=3)   
     
     # Evaluate likelihood function
     lik_pr = pk[x] 
