@@ -1,5 +1,5 @@
 #  NFXP class for structural estimation of discrete choice models.
-
+from scipy import optimize
 import numpy as np
 import Solve_NFXP_exante as Solve
 import model_zucher_exante as zucher
@@ -13,6 +13,7 @@ def estimate(model,solver,data,theta0=[0,0],twostep=0):
     ev = np.zeros(1) 
     
     samplesize = data.shape[0]
+
     # STEP 1: Find p 
     tabulate = data.dx1.value_counts()
     p = [tabulate[i]/sum(tabulate) for i in range(tabulate.size-1)]
@@ -23,8 +24,7 @@ def estimate(model,solver,data,theta0=[0,0],twostep=0):
     # Estimate RC and C
     pnames = ['RC','c']
     
-    res = optimize.minimize(ll,theta0,args = (model, solver, data, pnames), method = 'trust-ncg',jac = grad, hess = hes, tol=1e-8)
-    
+    res = optimize.minimize(ll,theta0,args = (model, solver, data, pnames), method = 'trust-ncg',jac = grad, hess = hes, tol=1e-8)  
     
     model=updatepar(model,pnames,res.x)
     
@@ -51,23 +51,24 @@ def ll(theta, model, solver,data, pnames, out=1): # out=1 solve optimization, ou
     global ev
     
     # Unpack
-    x = np.numpy(data.x)
-    d = np.numpy(data.d)
-    dx1 = np.numpy(data.dx1)
+    x = np.array(data.x)
+    d = np.array(data.d)
+    dx1 = np.array(data.dx1)
 
     # Update values
     model=updatepar(model,pnames,theta)
     model.p = np.abs(model.p)    # helps BHHH which is run as unconstrained optimization
-    model.create_grid()
+    model.create_grid() # Need this because if there is changes in e.g. p the grid changes
     ev0 = ev
 
     # Solve the model
-    # INSERT EQUATIONS HERE
-    
+    ev, pk, dev = solver.poly(model,bellman,V0=ev0, beta = model.beta, output=3)   
     
     # Evaluate likelihood function
-    # INSERT EQUAIONS HERE
-    
+    lik_pr = pk[x] 
+    #lik_pr = pk[x-1]*d + (1 - pk[x-1])*(1 - d)
+    log_lik = np.log(lik_pr + (1-2*lik_pr)*d)    
+
     # add on log like for mileage process
     if theta.size>2:
         p = np.append(model.p,1-np.sum(model.p))

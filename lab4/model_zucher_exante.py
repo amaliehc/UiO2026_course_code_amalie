@@ -9,7 +9,6 @@ class zurcher():
     def __init__(self,load=True,**kwargs):
         self.setup(**kwargs)
         
-    
 
     def setup(self,**kwargs):     
   
@@ -58,12 +57,12 @@ class zurcher():
     def bellman(self,ev0=np.zeros(1),output=1):
 
         # Value of options:
-        #value_keep = 
-        #value_replace = 
-
-        
+        value_keep = - self.cost + self.beta*ev0   # keep
+        value_replace = -self.cost[0] - self.RC + self.beta*ev0[0]  # replace
+ 
         # recenter Bellman by subtracting max(VK, VR)
-        #maxV = 
+        maxV = np.maximum(value_keep, value_replace)
+
         logsum = (maxV + np.log(np.exp(value_keep-maxV)  +  np.exp(value_replace-maxV)))  # This is the Logsum 
         ev1 = self.P1@logsum
 
